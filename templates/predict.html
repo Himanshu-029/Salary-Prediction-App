@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<title>Salary Predictor</title>
+
+<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body class="predict-body">
+
+<div class="top-nav">
+<a href="/analytics" class="nav-btn">Analytics Dashboard</a>
+</div>
+
+<div class="predictor-container">
+
+<h1>Salary Prediction App</h1>
+
+<form action="/predict" method="POST">
+
+<label>Age</label>
+<input type="number" name="age" required>
+
+<label>Gender</label>
+<select name="gender">
+{% for g in genders %}
+<option value="{{ g }}">{{ g }}</option>
+{% endfor %}
+</select>
+
+<label>Qualification</label>
+<select name="qualification">
+{% for q in qualifications %}
+<option value="{{ q }}">{{ q }}</option>
+{% endfor %}
+</select>
+
+<label>Designation</label>
+<select name="designation">
+{% for d in designations %}
+<option value="{{ d }}">{{ d }}</option>
+{% endfor %}
+</select>
+
+<label>Work Experience</label>
+<input type="number" name="experience" required>
+
+<button type="submit">Predict Salary</button>
+
+</form>
+
+{% if prediction %}
+
+<div class="result-box">
+
+<h2>Predicted Salary</h2>
+
+<p class="salary-main">
+₹{{ prediction }} LPA
+</p>
+
+</div>
+
+<div class="explanation-box">
+
+<h2>Why this salary?</h2>
+
+<ul class="explanation-list">
+
+<li>Experience impact → {{ explanation["Experience"] }}%</li>
+
+<li>Qualification impact → {{ explanation["Qualification"] }}%</li>
+
+<li>Role impact → {{ explanation["Role"] }}%</li>
+
+<li>Age impact → {{ explanation["Age"] }}%</li>
+
+</ul>
+
+</div>
+
+{% endif %}
+
+</div>
+
+</body>
+</html>
