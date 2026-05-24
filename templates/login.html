@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login — SalaryPredict AI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #f8fafc;
+            --surface: #fff;
+            --border: #e2e8f0;
+            --text: #1e293b;
+            --text-muted: #64748b;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+        }
+        
+        body.dark {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --border: #334155;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        .auth-container { width: 100%; max-width: 420px; padding: 20px; }
+        
+        .auth-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 36px 32px;
+        }
+        
+        .auth-logo { text-align: center; margin-bottom: 28px; }
+        .auth-logo a { font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .auth-logo span { font-weight: 400; color: var(--text-muted); }
+        
+        .auth-card h1 { font-size: 24px; font-weight: 700; text-align: center; margin-bottom: 6px; }
+        .auth-card .subtitle { text-align: center; color: var(--text-muted); font-size: 14px; margin-bottom: 24px; }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 13px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+            margin-top: 8px;
+        }
+        
+        .btn-submit:hover { background: var(--primary-hover); }
+        
+        .auth-footer { text-align: center; margin-top: 20px; font-size: 14px; color: var(--text-muted); }
+        .auth-footer a { color: var(--primary); font-weight: 600; text-decoration: none; }
+        .auth-footer a:hover { text-decoration: underline; }
+        
+        .back-link { display: block; text-align: center; margin-top: 16px; color: var(--text-muted); font-size: 13px; text-decoration: none; }
+        .back-link:hover { color: var(--primary); }
+        
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+        .toast { padding: 14px 24px; border-radius: 10px; color: #fff; font-weight: 500; font-size: 14px; animation: slideIn 0.3s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+        .toast-success { background: #22c55e; }
+        .toast-error { background: #ef4444; }
+        .toast-info { background: #3b82f6; }
+        
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    </style>
+</head>
+<body>
+    <div class="toast-container" id="toast-container"></div>
+    
+    <div class="auth-container">
+        <div class="auth-card">
+            <div class="auth-logo">
+                <a href="{{ url_for('home') }}">SalaryPredict <span>AI</span></a>
+            </div>
+            <h1>Welcome Back</h1>
+            <p class="subtitle">Login to access your prediction history</p>
+            
+            <form method="POST">
+                <div class="form-group">
+                    <label>Email</label>
+                    <input type="email" name="email" placeholder="you@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Password</label>
+                    <input type="password" name="password" placeholder="Your password" required>
+                </div>
+                <button type="submit" class="btn-submit">Login</button>
+            </form>
+            
+            <div class="auth-footer">
+                Don't have an account? <a href="{{ url_for('register') }}">Register</a>
+            </div>
+        </div>
+        <a href="{{ url_for('home') }}" class="back-link">← Back to Home</a>
+    </div>
+
+    <script>
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; toast.style.transition = 'all 0.3s ease'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    showToast("{{ message }}", "{{ category }}");
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </script>
+</body>
+</html>

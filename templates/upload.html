@@ -1,0 +1,424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Dataset — SalaryPredict AI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #f8fafc;
+            --surface: #fff;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --text: #1e293b;
+            --text-muted: #475569;
+            --text-light: #94a3b8;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --input-bg: #fff;
+            --drop-bg: #f8fafc;
+            --drop-border: #cbd5e1;
+        }
+        
+        body.dark {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --border: #334155;
+            --border-light: #334155;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-light: #64748b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --input-bg: #1e293b;
+            --drop-bg: #1e293b;
+            --drop-border: #475569;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+        
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 40px;
+        }
+        
+        .logo { font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .logo span { font-weight: 400; color: var(--text-muted); }
+        
+        .nav-links { display: flex; gap: 24px; list-style: none; align-items: center; }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 14px;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover { color: var(--primary); }
+        .nav-links a.active { color: var(--primary); font-weight: 600; }
+        
+        .dark-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .dark-toggle:hover { border-color: var(--primary); }
+        
+        .session-badge {
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        body.dark .session-badge {
+            background: #1e3a5f;
+            color: #93c5fd;
+        }
+        
+        /* Page header */
+        .page-header { text-align: center; margin-bottom: 32px; }
+        
+        .page-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            letter-spacing: -0.5px;
+            margin-bottom: 8px;
+        }
+        
+        .page-header p { color: var(--text-muted); font-size: 15px; }
+        
+        /* Upload card */
+        .upload-card {
+            max-width: 600px;
+            margin: 0 auto 40px;
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 36px 32px;
+        }
+        
+        /* Drop zone */
+        .drop-zone {
+            border: 2px dashed var(--drop-border);
+            border-radius: 12px;
+            padding: 44px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: var(--drop-bg);
+            margin-bottom: 20px;
+        }
+        
+        .drop-zone:hover {
+            border-color: var(--primary);
+            background: rgba(37,99,235,0.05);
+        }
+        
+        .drop-zone.dragover {
+            border-color: #22c55e;
+            background: rgba(34,197,94,0.08);
+        }
+        
+        .drop-zone .upload-icon { font-size: 44px; margin-bottom: 12px; }
+        .drop-zone p { font-size: 15px; font-weight: 500; color: var(--text-muted); }
+        .drop-zone .hint { font-size: 13px; color: var(--text-light); font-weight: 400; margin-top: 4px; }
+        .file-name { margin-top: 12px; font-weight: 600; color: var(--primary); font-size: 14px; }
+        
+        /* Required columns box */
+        .required-box {
+            background: #fffbeb;
+            border: 1px solid #fde68a;
+            border-radius: 10px;
+            padding: 16px;
+            margin-bottom: 20px;
+            font-size: 13px;
+            color: #92400e;
+            line-height: 1.6;
+        }
+        
+        body.dark .required-box {
+            background: #422006;
+            border-color: #78350f;
+            color: #fbbf24;
+        }
+        
+        .required-box strong { color: #78350f; }
+        body.dark .required-box strong { color: #fde68a; }
+        
+        .required-box code {
+            background: #fef3c7;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        body.dark .required-box code {
+            background: #78350f;
+            color: #fde68a;
+        }
+        
+        /* Button */
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .btn-submit:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 6px 20px rgba(37,99,235,0.25);
+        }
+        
+        .btn-submit:disabled {
+            background: #94a3b8;
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+        
+        /* Back link */
+        .back-link {
+            display: block;
+            text-align: center;
+            margin-top: 16px;
+            color: var(--text-muted);
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .back-link:hover { color: var(--primary); }
+        
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .toast {
+            padding: 14px 24px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 500;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            max-width: 360px;
+        }
+        
+        .toast-success { background: #22c55e; }
+        .toast-error { background: #ef4444; }
+        .toast-info { background: #3b82f6; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* GitHub ribbon */
+        .github-ribbon {
+            position: fixed;
+            top: 0;
+            right: 0;
+            z-index: 9998;
+        }
+        
+        .github-ribbon svg { fill: var(--primary); }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 24px 0;
+            border-top: 1px solid var(--border);
+            color: var(--text-light);
+            font-size: 13px;
+        }
+        
+        @media (max-width: 640px) {
+            .upload-card { padding: 24px 18px; }
+            .nav-links { gap: 14px; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- GitHub Ribbon -->
+    <a href="https://github.com/Himanshu-029/Salary-Prediction-App" target="_blank" class="github-ribbon">
+        <svg width="80" height="80" viewBox="0 0 250 250">
+            <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+            <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px; fill: #fff;"></path>
+            <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" style="fill: #fff;"></path>
+        </svg>
+    </a>
+
+    <!-- Toast Container -->
+    <div class="toast-container" id="toast-container"></div>
+
+    <div class="container">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <a href="{{ url_for('home') }}" class="logo">SalaryPredict <span>AI</span></a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('predict') }}">Predict</a></li>
+                <li><a href="{{ url_for('analytics') }}">Analytics</a></li>
+                <li><a href="{{ url_for('upload_dataset') }}" class="active">📁 Upload</a></li>
+                {% if session.get('is_custom_session') %}
+                    <span class="session-badge">⚡ Custom Model</span>
+                {% endif %}
+                <button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">🌓</button>
+            </ul>
+        </nav>
+
+        <!-- Page Header -->
+        <div class="page-header">
+            <h1>📂 Upload Your Dataset</h1>
+            <p>Train a custom salary prediction model using your own CSV or Excel file.</p>
+        </div>
+
+        <!-- Upload Card -->
+        <div class="upload-card">
+            <form method="POST" enctype="multipart/form-data" id="upload-form">
+                <input type="file" id="file-input" name="file" accept=".csv,.xlsx" hidden>
+
+                <div class="drop-zone" id="drop-zone">
+                    <div class="upload-icon">📁</div>
+                    <p>Click to browse or drag & drop</p>
+                    <p class="hint">CSV or Excel files only</p>
+                    <div class="file-name" id="filename-display"></div>
+                </div>
+
+                <div class="required-box">
+                    <strong>⚠️ Required Columns:</strong><br>
+                    Your file must include: <code>Salary</code>, <code>Work Experience</code><br>
+                    <small>(Also accepts: <code>Years of Experience</code>, <code>Job Title</code>, <code>Education Level</code>)</small>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submit-btn" disabled>🚀 Train Custom Model</button>
+            </form>
+
+            <a href="{{ url_for('home') }}" class="back-link">← Back to Home</a>
+        </div>
+
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2026 SalaryPredict AI</p>
+        </div>
+    </div>
+
+    <script>
+        // Dark mode
+        function toggleDark() {
+            document.body.classList.toggle('dark');
+            localStorage.setItem('dark', document.body.classList.contains('dark'));
+        }
+        if (localStorage.getItem('dark') === 'true') {
+            document.body.classList.add('dark');
+        }
+        
+        // Toast
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    showToast("{{ message }}", "{{ category }}");
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        // File upload handlers
+        const dropZone = document.getElementById('drop-zone');
+        const fileInput = document.getElementById('file-input');
+        const submitBtn = document.getElementById('submit-btn');
+        const filenameDisplay = document.getElementById('filename-display');
+
+        dropZone.addEventListener('click', () => fileInput.click());
+
+        dropZone.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            dropZone.classList.add('dragover');
+        });
+
+        dropZone.addEventListener('dragleave', () => {
+            dropZone.classList.remove('dragover');
+        });
+
+        dropZone.addEventListener('drop', (e) => {
+            e.preventDefault();
+            dropZone.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                fileInput.files = e.dataTransfer.files;
+                updateFilename(e.dataTransfer.files[0]);
+            }
+        });
+
+        fileInput.addEventListener('change', () => {
+            if (fileInput.files.length > 0) updateFilename(fileInput.files[0]);
+        });
+
+        function updateFilename(file) {
+            const ext = file.name.split('.').pop().toLowerCase();
+            if (ext === 'csv' || ext === 'xlsx') {
+                filenameDisplay.textContent = `✅ ${file.name} (${(file.size / 1024).toFixed(1)} KB)`;
+                submitBtn.disabled = false;
+            } else {
+                filenameDisplay.textContent = '❌ Invalid file type. Please select CSV or Excel.';
+                submitBtn.disabled = true;
+            }
+        }
+    </script>
+
+</body>
+</html>

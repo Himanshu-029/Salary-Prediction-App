@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Email Report — SalaryPredict AI</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #f8fafc;
+            --surface: #fff;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --text: #1e293b;
+            --text-muted: #475569;
+            --text-light: #94a3b8;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+        }
+        
+        body.dark {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --border: #334155;
+            --border-light: #334155;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --text-light: #64748b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        .container { max-width: 900px; margin: 0 auto; padding: 0 24px; }
+        
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 0;
+            border-bottom: 1px solid var(--border);
+            margin-bottom: 32px;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .logo { font-size: 22px; font-weight: 800; color: var(--primary); text-decoration: none; }
+        .logo span { font-weight: 400; color: var(--text-muted); }
+        
+        .nav-links { display: flex; gap: 20px; list-style: none; align-items: center; flex-wrap: wrap; }
+        .nav-links a { text-decoration: none; color: var(--text-muted); font-weight: 500; font-size: 13px; transition: color 0.2s; }
+        .nav-links a:hover { color: var(--primary); }
+        
+        .dark-toggle { background: none; border: 1px solid var(--border); padding: 6px 10px; border-radius: 8px; cursor: pointer; font-size: 16px; }
+        .user-badge { background: #dcfce7; color: #166534; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        body.dark .user-badge { background: #14532d; color: #86efac; }
+        .session-badge { background: #dbeafe; color: #1e40af; padding: 5px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+        body.dark .session-badge { background: #1e3a5f; color: #93c5fd; }
+        
+        .page-header { text-align: center; margin-bottom: 32px; }
+        .page-header h1 { font-size: 30px; font-weight: 700; letter-spacing: -0.5px; margin-bottom: 6px; }
+        .page-header p { color: var(--text-muted); font-size: 14px; }
+        
+        .email-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 40px; }
+        
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: 14px;
+            padding: 28px;
+        }
+        
+        .card h2 { font-size: 17px; font-weight: 600; margin-bottom: 18px; display: flex; align-items: center; gap: 8px; }
+        
+        .form-group { margin-bottom: 16px; }
+        .form-group label { display: block; font-size: 12px; font-weight: 600; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+        
+        .form-group input {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            transition: all 0.2s;
+        }
+        
+        .form-group input:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px rgba(37,99,235,0.1); }
+        
+        .btn-submit {
+            width: 100%;
+            padding: 13px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 15px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            font-family: 'Inter', sans-serif;
+        }
+        
+        .btn-submit:hover { background: var(--primary-hover); }
+        
+        .preview-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid var(--border-light);
+            font-size: 13px;
+        }
+        
+        .preview-label { color: var(--text-muted); font-weight: 500; }
+        .preview-value { font-weight: 600; }
+        .preview-value.salary { color: var(--primary); font-size: 16px; }
+        
+        .back-link { display: block; text-align: center; margin-top: 16px; color: var(--text-muted); font-size: 13px; text-decoration: none; }
+        .back-link:hover { color: var(--primary); }
+        
+        .toast-container { position: fixed; top: 20px; right: 20px; z-index: 9999; display: flex; flex-direction: column; gap: 8px; }
+        .toast { padding: 14px 24px; border-radius: 10px; color: #fff; font-weight: 500; font-size: 14px; animation: slideIn 0.3s ease; box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+        .toast-success { background: #22c55e; }
+        .toast-error { background: #ef4444; }
+        .toast-info { background: #3b82f6; }
+        
+        @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+        
+        .github-ribbon { position: fixed; top: 0; right: 0; z-index: 9998; }
+        .github-ribbon svg { fill: var(--primary); }
+        
+        .footer { text-align: center; padding: 24px 0; border-top: 1px solid var(--border); color: var(--text-light); font-size: 13px; }
+        
+        @media (max-width: 700px) { .email-layout { grid-template-columns: 1fr; } .navbar { flex-direction: column; } }
+    </style>
+</head>
+<body>
+    <a href="https://github.com/Himanshu-029/Salary-Prediction-App" target="_blank" class="github-ribbon">
+        <svg width="80" height="80" viewBox="0 0 250 250">
+            <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+            <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px; fill: #fff;"></path>
+            <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" style="fill: #fff;"></path>
+        </svg>
+    </a>
+
+    <div class="toast-container" id="toast-container"></div>
+
+    <div class="container">
+        <nav class="navbar">
+            <a href="{{ url_for('home') }}" class="logo">SalaryPredict <span>AI</span></a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('predict') }}">Predict</a></li>
+                <li><a href="{{ url_for('analytics') }}">Analytics</a></li>
+                <li><a href="{{ url_for('upload_dataset') }}">📁 Upload</a></li>
+                <li><a href="{{ url_for('resume_parser') }}">📄 Resume</a></li>
+                <li><a href="{{ url_for('api_playground') }}">🔌 API</a></li>
+                {% if session.get('user_id') %}
+                    <span class="user-badge">👤 {{ session.get('user_name', 'User') }}</span>
+                    <a href="{{ url_for('history') }}">📜 History</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">🔐 Login</a>
+                {% endif %}
+                {% if session.get('is_custom_session') %}
+                    <span class="session-badge">⚡ Custom Model</span>
+                {% endif %}
+                <button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">🌓</button>
+            </ul>
+        </nav>
+
+        <div class="page-header">
+            <h1>📧 Email Your Report</h1>
+            <p>Send your salary prediction report directly to your inbox.</p>
+        </div>
+
+        <div class="email-layout">
+            <div class="card">
+                <h2>📤 Send Report</h2>
+                {% if session.get('last_prediction') %}
+                    <form method="POST">
+                        <div class="form-group">
+                            <label>Your Email Address</label>
+                            <input type="email" name="email" placeholder="you@example.com" required>
+                        </div>
+                        <button type="submit" class="btn-submit">📧 Send Report Now</button>
+                    </form>
+                    <a href="{{ url_for('predict') }}" class="back-link">← Back to Prediction</a>
+                {% else %}
+                    <div style="text-align:center;padding:30px 20px;color:var(--text-light);">
+                        <div style="font-size:40px;margin-bottom:10px;">📭</div>
+                        <p style="font-size:14px;">No prediction found. Make a prediction first.</p>
+                        <a href="{{ url_for('predict') }}" style="display:inline-block;margin-top:14px;padding:10px 20px;background:var(--primary);color:#fff;border-radius:8px;text-decoration:none;font-weight:600;font-size:14px;">🎯 Predict Now</a>
+                    </div>
+                {% endif %}
+            </div>
+
+            <div class="card">
+                <h2>📋 Report Preview</h2>
+                {% if session.get('last_prediction') %}
+                    {% set p = session['last_prediction'] %}
+                    <div class="preview-item"><span class="preview-label">Age</span><span class="preview-value">{{ p.age }}</span></div>
+                    <div class="preview-item"><span class="preview-label">Gender</span><span class="preview-value">{{ p.gender }}</span></div>
+                    <div class="preview-item"><span class="preview-label">Qualification</span><span class="preview-value">{{ p.qualification }}</span></div>
+                    <div class="preview-item"><span class="preview-label">Designation</span><span class="preview-value">{{ p.designation }}</span></div>
+                    <div class="preview-item"><span class="preview-label">Experience</span><span class="preview-value">{{ p.experience }} Years</span></div>
+                    <div class="preview-item"><span class="preview-label">Predicted Salary</span><span class="preview-value salary">₹{{ p.predicted_salary }} LPA</span></div>
+                    <div class="preview-item"><span class="preview-label">Model</span><span class="preview-value">{{ p.model_type }}</span></div>
+                    <div class="preview-item"><span class="preview-label">Generated</span><span class="preview-value">{{ p.timestamp }}</span></div>
+                {% else %}
+                    <div style="text-align:center;padding:30px 20px;color:var(--text-light);">
+                        <div style="font-size:40px;margin-bottom:10px;">📋</div>
+                        <p style="font-size:14px;">Report preview will appear here after prediction.</p>
+                    </div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="footer">
+            <p>© 2026 SalaryPredict AI</p>
+        </div>
+    </div>
+
+    <script>
+        function toggleDark() { document.body.classList.toggle('dark'); localStorage.setItem('dark', document.body.classList.contains('dark')); }
+        if (localStorage.getItem('dark') === 'true') document.body.classList.add('dark');
+        
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => { toast.style.opacity = '0'; toast.style.transform = 'translateX(100%)'; toast.style.transition = 'all 0.3s ease'; setTimeout(() => toast.remove(), 300); }, 3000);
+        }
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    showToast("{{ message }}", "{{ category }}");
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </script>
+</body>
+</html>

@@ -1,36 +1,598 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-
-<title>Salary Prediction AI</title>
-
-<link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
-
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Salary Predictor — Know Your Worth</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+        
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        :root {
+            --bg: #f8fafc;
+            --surface: #fff;
+            --border: #e2e8f0;
+            --border-light: #f1f5f9;
+            --text: #1e293b;
+            --text-heading: #0f172a;
+            --text-muted: #475569;
+            --text-light: #94a3b8;
+            --primary: #2563eb;
+            --primary-hover: #1d4ed8;
+            --feature-icon-bg: #eff6ff;
+        }
+        
+        body.dark {
+            --bg: #0f172a;
+            --surface: #1e293b;
+            --border: #334155;
+            --border-light: #334155;
+            --text: #e2e8f0;
+            --text-heading: #f1f5f9;
+            --text-muted: #94a3b8;
+            --text-light: #64748b;
+            --primary: #3b82f6;
+            --primary-hover: #2563eb;
+            --feature-icon-bg: #1e3a5f;
+        }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+            transition: background 0.3s, color 0.3s;
+        }
+        
+        .container { max-width: 1100px; margin: 0 auto; padding: 0 28px; }
+        
+        /* Navbar */
+        .navbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 22px 0;
+            border-bottom: 1px solid var(--border);
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        
+        .logo {
+            font-size: 22px;
+            font-weight: 800;
+            color: var(--primary);
+            letter-spacing: -0.5px;
+            text-decoration: none;
+        }
+        
+        .logo span { font-weight: 400; color: var(--text-muted); }
+        
+        .nav-links {
+            display: flex;
+            gap: 20px;
+            list-style: none;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+        
+        .nav-links a {
+            text-decoration: none;
+            color: var(--text-muted);
+            font-weight: 500;
+            font-size: 13px;
+            transition: color 0.2s;
+        }
+        
+        .nav-links a:hover { color: var(--primary); }
+        
+        .nav-upload {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            padding: 8px 16px;
+            border-radius: 8px;
+            font-weight: 500;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: var(--text-muted);
+        }
+        
+        .nav-upload:hover { border-color: var(--primary); color: var(--primary); }
+        
+        .nav-reset {
+            color: var(--text-light);
+            font-size: 12px;
+            text-decoration: none;
+            margin-left: 4px;
+        }
+        
+        .nav-reset:hover { color: #ef4444; }
+        
+        .dark-toggle {
+            background: none;
+            border: 1px solid var(--border);
+            padding: 6px 10px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: all 0.2s;
+        }
+        
+        .dark-toggle:hover { border-color: var(--primary); }
+        
+        .session-badge {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        body.dark .session-badge { background: #1e3a5f; color: #93c5fd; }
+        
+        .user-badge {
+            background: #dcfce7;
+            color: #166534;
+            padding: 5px 12px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 600;
+        }
+        
+        body.dark .user-badge { background: #14532d; color: #86efac; }
+        
+        /* Hero */
+        .hero {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 70px 0 60px;
+            gap: 50px;
+        }
+        
+        .hero-left { flex: 1; max-width: 520px; }
+        
+        .hero-left h1 {
+            font-size: 48px;
+            font-weight: 800;
+            line-height: 1.15;
+            letter-spacing: -1.5px;
+            margin-bottom: 16px;
+            color: var(--text-heading);
+        }
+        
+        .hero-left h1 span {
+            color: var(--primary);
+            position: relative;
+        }
+        
+        .hero-left h1 span::after {
+            content: '';
+            position: absolute;
+            bottom: 4px;
+            left: 0;
+            width: 100%;
+            height: 8px;
+            background: rgba(37,99,235,0.15);
+            border-radius: 4px;
+            z-index: -1;
+        }
+        
+        .subtitle {
+            font-size: 17px;
+            color: var(--text-muted);
+            line-height: 1.6;
+            margin-bottom: 32px;
+        }
+        
+        .hero-buttons { display: flex; gap: 12px; flex-wrap: wrap; }
+        
+        .btn {
+            padding: 14px 28px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.2s;
+            text-decoration: none;
+            display: inline-block;
+        }
+        
+        .btn-primary {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+        }
+        
+        .btn-primary:hover {
+            background: var(--primary-hover);
+            box-shadow: 0 6px 20px rgba(37,99,235,0.25);
+            transform: translateY(-1px);
+        }
+        
+        .btn-outline {
+            background: var(--surface);
+            color: var(--primary);
+            border: 1px solid var(--border);
+        }
+        
+        .btn-outline:hover { border-color: var(--primary); }
+        
+        .hero-right { flex: 1; text-align: center; }
+        
+        /* CSS Illustration */
+        .hero-illustration {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 16px;
+        }
+        .illustration-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 20px;
+            padding: 32px 40px;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.06);
+            transition: transform 0.3s;
+        }
+        .illustration-card:hover { transform: translateY(-4px); }
+        .illustration-icon { font-size: 42px; margin-bottom: 20px; }
+        .illustration-bars {
+            display: flex;
+            gap: 8px;
+            align-items: flex-end;
+            justify-content: center;
+            height: 120px;
+            margin-bottom: 20px;
+        }
+        .illust-bar {
+            width: 22px;
+            background: var(--border);
+            border-radius: 6px 6px 0 0;
+            transition: all 0.3s;
+        }
+        .illust-bar.active {
+            background: linear-gradient(180deg, #3b82f6, #2563eb);
+            box-shadow: 0 4px 12px rgba(37,99,235,0.3);
+        }
+        .illustration-label { font-size: 14px; color: var(--text-muted); }
+        .illustration-label strong { color: var(--primary); font-size: 18px; }
+        .illustration-dots { display: flex; gap: 8px; }
+        .illustration-dots span {
+            width: 10px;
+            height: 10px;
+            background: #cbd5e1;
+            border-radius: 50%;
+        }
+        .illustration-dots span:nth-child(2) {
+            background: var(--primary);
+            width: 28px;
+            border-radius: 20px;
+        }
+        
+        /* Stats row */
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 16px;
+            margin-bottom: 60px;
+        }
+        
+        .stat-card {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 22px 20px;
+            text-align: center;
+            transition: all 0.2s;
+        }
+        
+        .stat-card:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.04); }
+        .stat-value { font-size: 28px; font-weight: 700; color: var(--primary); }
+        .stat-label { font-size: 13px; color: var(--text-light); margin-top: 4px; }
+        
+        /* Features */
+        .section-title {
+            text-align: center;
+            font-size: 26px;
+            font-weight: 700;
+            margin-bottom: 12px;
+            letter-spacing: -0.5px;
+        }
+        
+        .section-subtitle {
+            text-align: center;
+            color: var(--text-muted);
+            margin-bottom: 40px;
+            font-size: 15px;
+        }
+        
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 16px;
+            margin-bottom: 60px;
+        }
+        
+        .feature-card {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: 12px;
+            padding: 26px 22px;
+            transition: all 0.2s;
+            text-decoration: none;
+            color: var(--text);
+            display: block;
+        }
+        
+        .feature-card:hover {
+            box-shadow: 0 8px 24px rgba(0,0,0,0.05);
+            transform: translateY(-2px);
+            border-color: var(--primary);
+        }
+        
+        .feature-icon {
+            width: 44px;
+            height: 44px;
+            background: var(--feature-icon-bg);
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            margin-bottom: 14px;
+        }
+        
+        .feature-card h4 { font-size: 16px; margin-bottom: 6px; font-weight: 600; }
+        .feature-card p { font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+        
+        /* CTA section */
+        .cta-section {
+            text-align: center;
+            padding: 50px 20px;
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: 20px;
+            margin-bottom: 60px;
+        }
+        
+        .cta-section h2 { font-size: 26px; font-weight: 700; margin-bottom: 8px; }
+        .cta-section p { color: var(--text-muted); margin-bottom: 24px; font-size: 15px; }
+        
+        /* Toast */
+        .toast-container {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 9999;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        
+        .toast {
+            padding: 14px 24px;
+            border-radius: 10px;
+            color: #fff;
+            font-weight: 500;
+            font-size: 14px;
+            animation: slideIn 0.3s ease;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+            max-width: 360px;
+        }
+        
+        .toast-success { background: #22c55e; }
+        .toast-info { background: #3b82f6; }
+        .toast-error { background: #ef4444; }
+        
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        
+        /* GitHub ribbon */
+        .github-ribbon { position: fixed; top: 0; right: 0; z-index: 9998; }
+        .github-ribbon svg { fill: var(--primary); }
+        
+        /* Footer */
+        .footer {
+            text-align: center;
+            padding: 30px 0;
+            border-top: 1px solid var(--border);
+            color: var(--text-light);
+            font-size: 13px;
+        }
+        
+        @media (max-width: 768px) {
+            .hero { flex-direction: column-reverse; text-align: center; padding: 40px 0; }
+            .hero-left h1 { font-size: 34px; }
+            .hero-buttons { justify-content: center; }
+            .stats-row { grid-template-columns: repeat(2, 1fr); }
+            .navbar { flex-direction: column; }
+        }
+        
+        @media (max-width: 480px) {
+            .stats-row { grid-template-columns: 1fr; }
+        }
+    </style>
 </head>
+<body>
 
-<body class="home-body">
+    <a href="https://github.com/Himanshu-029/Salary-Prediction-App" target="_blank" class="github-ribbon">
+        <svg width="80" height="80" viewBox="0 0 250 250">
+            <path d="M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z"></path>
+            <path d="M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2" fill="currentColor" style="transform-origin:130px 106px; fill: #fff;"></path>
+            <path d="M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z" fill="currentColor" style="fill: #fff;"></path>
+        </svg>
+    </a>
 
-<div class="hero">
+    <div class="toast-container" id="toast-container"></div>
 
-<div class="hero-left">
+    <div class="container">
+        <!-- Navbar -->
+        <nav class="navbar">
+            <a href="{{ url_for('home') }}" class="logo">SalaryPredict <span>AI</span></a>
+            <ul class="nav-links">
+                <li><a href="{{ url_for('home') }}">Home</a></li>
+                <li><a href="{{ url_for('predict') }}">Predict</a></li>
+                <li><a href="{{ url_for('analytics') }}">Analytics</a></li>
+                <li><a href="{{ url_for('upload_dataset') }}" class="nav-upload">📁 Upload</a></li>
+                <li><a href="{{ url_for('resume_parser') }}">📄 Resume</a></li>
+                <li><a href="{{ url_for('api_playground') }}">🔌 API</a></li>
+                {% if session.get('user_id') %}
+                    <span class="user-badge">👤 {{ session.get('user_name', 'User') }}</span>
+                    <a href="{{ url_for('history') }}">📜 History</a>
+                    <a href="{{ url_for('logout') }}">Logout</a>
+                {% else %}
+                    <a href="{{ url_for('login') }}">🔐 Login</a>
+                    <a href="{{ url_for('register') }}">Register</a>
+                {% endif %}
+                {% if session.get('is_custom_session') %}
+                    <span class="session-badge">⚡ Custom Model</span>
+                    <a href="{{ url_for('reset_session') }}" class="nav-reset">Reset</a>
+                {% endif %}
+                <button class="dark-toggle" onclick="toggleDark()" title="Toggle dark mode">🌓</button>
+            </ul>
+        </nav>
 
-<h1>Salary Prediction <span class="highlight">AI</span></h1>
+        <!-- Hero -->
+        <section class="hero">
+            <div class="hero-left">
+                <h1>Know Your <span>Worth</span> in the Market</h1>
+                <p class="subtitle">
+                    AI-powered salary predictions with smart features — upload your resume, get job recommendations, 
+                    download reports, and share results instantly.
+                </p>
+                <div class="hero-buttons">
+                    <a href="{{ url_for('predict') }}" class="btn btn-primary">Predict My Salary →</a>
+                    <a href="{{ url_for('resume_parser') }}" class="btn btn-outline">📄 Upload Resume</a>
+                    <a href="{{ url_for('upload_dataset') }}" class="btn btn-outline">📂 Custom Dataset</a>
+                </div>
+            </div>
+            <div class="hero-right">
+                <div class="hero-illustration">
+                    <div class="illustration-card">
+                        <div class="illustration-icon">💰</div>
+                        <div class="illustration-bars">
+                            <div class="illust-bar" style="height: 40px;"></div>
+                            <div class="illust-bar" style="height: 70px;"></div>
+                            <div class="illust-bar active" style="height: 110px;"></div>
+                            <div class="illust-bar" style="height: 55px;"></div>
+                            <div class="illust-bar" style="height: 90px;"></div>
+                        </div>
+                        <div class="illustration-label">Predicted: <strong>₹18.5 LPA</strong></div>
+                    </div>
+                    <div class="illustration-dots">
+                        <span></span><span></span><span></span>
+                    </div>
+                </div>
+            </div>
+        </section>
 
-<p class="subtitle">
-Predict salaries using Machine Learning and explore analytics insights.
-</p>
+        <!-- Stats -->
+        <div class="stats-row">
+            <div class="stat-card">
+                <div class="stat-value">94%</div>
+                <div class="stat-label">Model Accuracy</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">1.2K+</div>
+                <div class="stat-label">Data Points</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">7</div>
+                <div class="stat-label">Smart Features</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">&lt;1s</div>
+                <div class="stat-label">Response Time</div>
+            </div>
+        </div>
 
-<a href="/predict" class="cta-btn">Start Prediction</a>
+        <!-- Features Grid (clickable cards) -->
+        <h2 class="section-title">Everything You Need</h2>
+        <p class="section-subtitle">Powerful features, beautifully simple.</p>
+        
+        <div class="features-grid">
+            <a href="{{ url_for('predict') }}" class="feature-card">
+                <div class="feature-icon">🎯</div>
+                <h4>Salary Prediction</h4>
+                <p>AI-powered estimates with detailed explanation breakdowns.</p>
+            </a>
+            <a href="{{ url_for('resume_parser') }}" class="feature-card">
+                <div class="feature-icon">📄</div>
+                <h4>Resume Parser</h4>
+                <p>Upload PDF/DOCX and auto-extract your profile details.</p>
+            </a>
+            <a href="{{ url_for('analytics') }}" class="feature-card">
+                <div class="feature-icon">📊</div>
+                <h4>Rich Analytics</h4>
+                <p>Interactive charts, trends, and salary distribution insights.</p>
+            </a>
+            <a href="{{ url_for('upload_dataset') }}" class="feature-card">
+                <div class="feature-icon">📁</div>
+                <h4>Custom Dataset</h4>
+                <p>Upload your CSV and train a personalized ML model.</p>
+            </a>
+            <a href="{{ url_for('api_playground') }}" class="feature-card">
+                <div class="feature-icon">🔌</div>
+                <h4>API Playground</h4>
+                <p>Test our REST API directly in the browser with live responses.</p>
+            </a>
+            <a href="{{ url_for('negotiation_tips') }}" class="feature-card">
+                <div class="feature-icon">💬</div>
+                <h4>Negotiation Tips</h4>
+                <p>Get personalized salary negotiation advice based on your profile.</p>
+            </a>
+        </div>
 
-</div>
+        <!-- CTA -->
+        <div class="cta-section">
+            <h2>Ready to Discover Your Market Value?</h2>
+            <p>Join users who've already predicted their worth. It's free and takes 30 seconds.</p>
+            <a href="{{ url_for('predict') }}" class="btn btn-primary">🚀 Get Started Now</a>
+        </div>
 
-<div class="hero-right">
+        <!-- Footer -->
+        <div class="footer">
+            <p>© 2026 SalaryPredict AI. Built with Python, Flask & Scikit-learn.</p>
+        </div>
+    </div>
 
-<img src="{{ url_for('static', filename='salary.png') }}" class="hero-img">
-
-</div>
-
-</div>
+    <script>
+        function toggleDark() {
+            document.body.classList.toggle('dark');
+            localStorage.setItem('dark', document.body.classList.contains('dark'));
+        }
+        if (localStorage.getItem('dark') === 'true') document.body.classList.add('dark');
+        
+        function showToast(message, type) {
+            const container = document.getElementById('toast-container');
+            const toast = document.createElement('div');
+            toast.className = `toast toast-${type}`;
+            toast.textContent = message;
+            container.appendChild(toast);
+            setTimeout(() => {
+                toast.style.opacity = '0';
+                toast.style.transform = 'translateX(100%)';
+                toast.style.transition = 'all 0.3s ease';
+                setTimeout(() => toast.remove(), 300);
+            }, 3000);
+        }
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    showToast("{{ message }}", "{{ category }}");
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </script>
 
 </body>
 </html>
