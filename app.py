@@ -12,6 +12,13 @@ from werkzeug.utils import secure_filename
 from datetime import datetime
 from functools import wraps
 
+# Create required folders if they don't exist
+os.makedirs('uploads', exist_ok=True)
+os.makedirs('resumes', exist_ok=True)
+
+
+
+
 app = Flask(__name__)
 
 # Required for session handling and file uploads
@@ -700,4 +707,5 @@ def analytics():
 # -----------------------------
 
 if __name__ == "__main__":
-    app.run(debug=True)
+    app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+

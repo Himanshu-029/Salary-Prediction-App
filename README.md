@@ -181,37 +181,37 @@ Go to `/home`, and check out an AI-powered salary prediction platform that analy
 
 ![Home Page](screenshots/home.png)
 
-### 1. Predict Salary
+### 2. Predict Salary
 Navigate to `/predict`, fill in your details (Age, Gender, Qualification, Designation, Experience), and click "Predict Salary". You'll see the predicted amount, AI explanation bars, job recommendations, and social share buttons.
 
 ![Predict Salary](screenshots/predict.png)
 
-### 2. Upload Custom Dataset
+### 3. Upload Custom Dataset
 Go to `/upload`, drop a CSV/Excel file with columns like Salary, Work Experience, Age, etc. The app trains a temporary model and switches all predictions to use your data.
 
 ![Upload Custom Dataset](screenshots/dataset.png)
 
-### 3. Parse Your Resume
+### 4. Parse Your Resume
 Visit `/resume`, upload your PDF/DOCX/TXT resume. The parser extracts your email, phone, skills, experience years, and qualification — then links directly to the predictor.
 
 ![Resume Parser](screenshots/resume.png)
 
-### 4. View Analytics
+### 5. View Analytics
 Head to `/analytics` to compare predicted vs actual salaries, explore salary distributions, and analyze trends with interactive charts.
 
 ![Analytics Dashboard](screenshots/analytics.png)
 
-### 5. Create an Account
+### 6. Create an Account
 Register at `/register` to save your prediction history. Login to view past predictions with trend charts on `/history`.
 
 ![Account Creation](screenshots/register.png)
 
-### 6. Test the API
+### 7. Test the API
 Open `/api_playground` to send live requests to `POST /api/predict` and see JSON responses. The cURL command updates automatically.
 
 ![API Testing](screenshots/api.png)
 
-### 7. Toggle Dark Mode
+### 8. Toggle Dark Mode
 Click the 🌓 icon in the navbar. Your preference is saved across sessions.
 
 ![Toggle Dark Mode](screenshots/dark.png)
