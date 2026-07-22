@@ -16,9 +16,6 @@ from functools import wraps
 os.makedirs('uploads', exist_ok=True)
 os.makedirs('resumes', exist_ok=True)
 
-
-
-
 app = Flask(__name__)
 
 # Required for session handling and file uploads
@@ -32,7 +29,7 @@ os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)
 os.makedirs(app.config['RESUME_FOLDER'], exist_ok=True)
 
 # -----------------------------
-# DATABASE SETUP
+# DATABASE SETUP - FIXED VERSION
 # -----------------------------
 
 def get_db():
@@ -41,15 +38,25 @@ def get_db():
     return conn
 
 def init_db():
+    """Initialize database with proper schema"""
     conn = get_db()
-    conn.executescript('''
+    
+    # Drop existing tables to avoid conflicts (only if needed)
+    # conn.executescript('DROP TABLE IF EXISTS predictions; DROP TABLE IF EXISTS users;')
+    
+    # Create users table with correct schema
+    conn.execute('''
         CREATE TABLE IF NOT EXISTS users (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL,
             name TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
-        );
+        )
+    ''')
+    
+    # Create predictions table with all required columns
+    conn.execute('''
         CREATE TABLE IF NOT EXISTS predictions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             user_id INTEGER,
@@ -62,41 +69,68 @@ def init_db():
             model_type TEXT,
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
             FOREIGN KEY (user_id) REFERENCES users(id)
-        );
+        )
     ''')
+    
     conn.commit()
     conn.close()
+    print("✅ Database initialized successfully!")
 
+# Initialize database on startup
 init_db()
 
 # -----------------------------
-# LOAD DEFAULT MODEL (kept as fallback)
+# LOAD DEFAULT MODEL
 # -----------------------------
 
-model = pickle.load(open("salary_prediction_model.pkl", "rb"))
-model_columns = pickle.load(open("model_columns.pkl", "rb"))
+try:
+    model = pickle.load(open("salary_prediction_model.pkl", "rb"))
+    model_columns = pickle.load(open("model_columns.pkl", "rb"))
+    print("✅ Model loaded successfully!")
+except FileNotFoundError as e:
+    print(f"⚠️ Warning: {e}")
+    # Create dummy model if file not found (for testing)
+    from sklearn.linear_model import LinearRegression
+    model = LinearRegression()
+    model_columns = ['Age', 'Gender_Male', 'Qualification_Bachelor', 'Designation_Engineer', 'Work_Experience']
+    print("⚠️ Using dummy model - replace with actual model file!")
 
 # -----------------------------
-# LOAD DEFAULT DATASET (kept as fallback)
+# LOAD DEFAULT DATASET
 # -----------------------------
 
-df = pd.read_csv("Salary_Data.csv")
-df = df.rename(columns={
-    "Education Level": "Qualification",
-    "Job Title": "Designation",
-    "Years of Experience": "Work Experience"
-})
-df = df.dropna()
-df["Qualification"] = df["Qualification"].replace({
-    "phD": "PhD",
-    "PHD": "PhD",
-    "Bachelor's": "Bachelor's Degree",
-    "Master's": "Master's Degree"
-})
-
-designations = sorted(df["Designation"].unique())
-qualifications = sorted(df["Qualification"].unique())
-genders = sorted(df["Gender"].unique())
+try:
+    df = pd.read_csv("Salary_Data.csv")
+    df = df.rename(columns={
+        "Education Level": "Qualification",
+        "Job Title": "Designation",
+        "Years of Experience": "Work Experience"
+    })
+    df = df.dropna()
+    df["Qualification"] = df["Qualification"].replace({
+        "phD": "PhD",
+        "PHD": "PhD",
+        "Bachelor's": "Bachelor's Degree",
+        "Master's": "Master's Degree"
+    })
+    designations = sorted(df["Designation"].unique())
+    qualifications = sorted(df["Qualification"].unique())
+    genders = sorted(df["Gender"].unique())
+    print("✅ Dataset loaded successfully!")
+except FileNotFoundError:
+    print("⚠️ Warning: Salary_Data.csv not found!")
+    # Create dummy data
+    df = pd.DataFrame({
+        'Age': [25, 30, 35],
+        'Gender': ['Male', 'Female', 'Male'],
+        'Qualification': ['Bachelor', 'Master', 'PhD'],
+        'Designation': ['Engineer', 'Manager', 'Director'],
+        'Work Experience': [2, 5, 10],
+        'Salary': [50000, 80000, 120000]
+    })
+    designations = ['Engineer', 'Manager', 'Director']
+    qualifications = ['Bachelor', 'Master', 'PhD']
+    genders = ['Male', 'Female']
 
 # Job role mapping for recommendation engine
 JOB_ROLES = {
@@ -703,9 +737,21 @@ def analytics():
     )
 
 # -----------------------------
+# ERROR HANDLERS
+# -----------------------------
+
+@app.errorhandler(404)
+def not_found_error(error):
+    return render_template('home.html'), 404
+
+@app.errorhandler(500)
+def internal_error(error):
+    flash('Something went wrong! Please try again.', 'error')
+    return render_template('home.html'), 500
+
+# -----------------------------
 # RUN APP
 # -----------------------------
 
 if __name__ == "__main__":
     app.run(debug=False, host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
-
