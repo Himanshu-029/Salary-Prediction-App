@@ -169,7 +169,7 @@
                 <li><a href="{{ url_for('api_playground') }}">🔌 API</a></li>
                 {% if session.get('user_id') %}
                     <span class="user-badge">👤 {{ session.get('user_name', 'User') }}</span>
-                    <a href="{{ url_for('history') }}">📜 History</a>
+                    <a href="{{ url_for('prediction_history') }}">📜 History</a>
                     <a href="{{ url_for('logout') }}">Logout</a>
                 {% else %}
                     <a href="{{ url_for('login') }}">🔐 Login</a>
